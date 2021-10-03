@@ -227,5 +227,6 @@ async def shop(message, mode="none", id=0, amount=1):
         await message.channel.send(embed=embed) 
     elif mode == "buy" and id != 0:
         print(f"{message.author.name} bought someting.")
+        await message.channel.send("Closed.")
 
 client.run(os.getenv("TOKEN"))
