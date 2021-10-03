@@ -101,7 +101,7 @@ async def pet(message, mode="none", set=0, rename="none"):
         pic = result[str(message.author.id)]["pet"][num]["id"]
         typer = result[str(message.author.id)]["pet"][num]["type"]
         rn = rename
-        urlp = f'https://raw.githubusercontent.com/Jannnn1235/CaatBot/master/{typer}/{pic}.png'
+        urlp = f'https://raw.githubusercontent.com/Jannnn1235/adorable-pet/master/{typer}/{pic}.png'
         if mode == "none":
             embed = discord.Embed(title=f"{message.author.name}'s pet", color=blue)
             embed.add_field(name="Name", value=result[str(message.author.id)]["pet"][num]["name"], inline=False)
