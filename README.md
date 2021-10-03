@@ -1,2 +1,1 @@
-# adorable-pet
-discord bot
+### <p align="center">adorable-pet</p>
