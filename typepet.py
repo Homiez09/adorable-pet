@@ -1,0 +1,1 @@
+typepet = ["cat", "dog"]
