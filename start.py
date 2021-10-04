@@ -1,10 +1,11 @@
 # Made by Phumrapee Soenvanichakul (jannnn1235)
 # Github: https://github.com/Jannnn1235/NENEbot
 
+from logging import error
 import discord
 import os
 import random
-import typepet
+import config
 
 from discord import Embed
 from firebase import firebase
@@ -38,17 +39,42 @@ async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
         if error.retry_after >= 3600:
             embed = discord.Embed(description='**You need to wait {:.0f} hours'.format(error.retry_after/3600), color=0xC70039)
-            await ctx.channel.send(embed=embed, delete_after=error.retry_after/3600)
+            await ctx.channel.send(embed=embed, delete_after=error.retry_after)
         elif error.retry_after >= 360:
             embed = discord.Embed(description='**You need to wait {:.0f} minutes'.format(error.retry_after/60), color=0xC70039)
-            await ctx.channel.send(embed=embed, delete_after=error.retry_after/60)
+            await ctx.channel.send(embed=embed, delete_after=error.retry_after)
         else:
             embed = discord.Embed(description='**You need to wait {:.0f} seconds'.format(error.retry_after), color=0xC70039)
             await ctx.channel.send(embed=embed, delete_after=error.retry_after)
 
 @client.event
 async def on_message(message):
+    await level(message)
     await client.process_commands(message)
+
+@client.event
+async def level(message):
+    result = firebase.get(os.getenv("DB"), '')
+    if str(message.author.id) in result:
+        try:
+            iduser = message.author.id
+            set = int(result[str(iduser)]["set"]) - 1           
+            petname = result[str(iduser)]["pet"][set]["name"]         
+            happy = int(result[str(iduser)]["pet"][set]["happy"]) 
+            level = int(happy)**(1/5)
+            percent = int((level-int(level))*100)
+
+            result = firebase.put(f'dbcaat/{iduser}/pet/{set}', "happy", int(result[str(iduser)]["pet"][set]["happy"]) + 1)  
+            result = firebase.put(f'dbcaat/{iduser}/pet/{set}', "level", f'{int(int(happy)**(1/5))} [{percent}%]')  
+
+            if float(happy+1)**(1/5) - int(level) == 0.0 or float(happy+1)**(1/5) - int(level) == 1.0 :            
+                embed = discord.Embed(description=f'<@{iduser}>, {petname} just advanced to level {int(level+1)}!.', color=green)
+                await message.channel.send(embed=embed) 
+        except:
+            print('something error')
+            print(error)
+    else:
+        print('No data')  
 
 @client.command()
 async def howtoplay(message):
@@ -67,12 +93,13 @@ async def startpet(message):
                     "name": "None",
                     "level": 0,
                     "happy": 0,
-                    "id": random.randint(1,18),
-                    "type": random.choice(typepet.typepet),
+                    "id": random.randint(1,5),
+                    "type": random.choice(config.typepet),
                 },
             ],
             "inv":{
-                    "nametag": 5
+                    "nametag": 5,
+                    "coin": 10
                     },
             "set": 1
         }
@@ -84,11 +111,6 @@ async def startpet(message):
     else:
         embed = discord.Embed(description="You already have a pet.", color=red)
         await message.channel.send(embed=embed)
-
-    """ else:
-        embed = discord.Embed(description="use !startpet <nametag>", color=red)
-        embed.set_footer(text="A-Za-zก-ฮ limit 10 letter.")
-        await message.channel.send(embed=embed) """
 
 @client.command()
 @commands.cooldown(1,3,commands.BucketType.user)
@@ -151,20 +173,16 @@ async def pet(message, mode="none", set=0, rename="none"):
         embed = discord.Embed(description="Not found your data.", color=red)
         await message.channel.send(embed=embed)
 
-@client.command(name='walk', aliases=['w', 'wa', 'ด', 'เดิน'])
-@commands.cooldown(1,7200,commands.BucketType.user)
-async def walk(message):
+@client.command(name='work', aliases=['w', 'wk', 'งาน', 'ทำงาน'])
+@commands.cooldown(1, 30,commands.BucketType.user)
+async def work(message):
     result = firebase.get(os.getenv("DB"), '')
     if str(message.author.id) in result:
-        eventw = random.randint(10,40)
-        set = int(result[str(message.author.id)]["set"])
-        namecat = result[str(message.author.id)]["pet"][set-1]["name"]
+        salary = random.randint(10,40)
+        result = firebase.put(f'/dbcaat/{message.author.id}/inv', "coin", int(result[str(message.author.id)]["inv"]["coin"]) + salary)
 
-        updatedb = int(result[str(message.author.id)]["pet"][set-1]["happy"]) + eventw
-        result = firebase.put(f'/dbcaat/{message.author.id}/pet/{set-1}', "happy", updatedb)
-
-        f_embed = Embed(description="Walking...", color=yellow)
-        n_embed = Embed(description=f'{namecat} got +{eventw} happy.', color=green)
+        f_embed = Embed(description="working...", color=yellow)
+        n_embed = Embed(description=f'<@{message.author.id}>, You got +{salary}$.', color=green)
 
         msg = await message.send(embed=f_embed)
         await msg.edit(embed=n_embed)
@@ -173,9 +191,9 @@ async def walk(message):
         embed = discord.Embed(description="Not found your data.", color=red)
         await message.channel.send(embed=embed)
 
-@client.command(name='feed', aliases=['fed', 'eat'])
+''' @client.command(name='feed', aliases=['fed', 'eat'])
 @commands.cooldown(1,3600,commands.BucketType.user)
-async def feed(message):
+async def find(message):
     result = firebase.get(os.getenv("DB"), '')
     if str(message.author.id) in result:
         eventf = random.randint(2,10)
@@ -192,7 +210,7 @@ async def feed(message):
         await msg.edit(embed=n_embed)
     else:
         embed = discord.Embed(description="Not found your data.", color=red)
-        await message.channel.send(embed=embed)
+        await message.channel.send(embed=embed) '''
 
 @client.command(name='github', aliases=['git', 'gh'])
 async def github(message):
@@ -228,5 +246,13 @@ async def shop(message, mode="none", id=0, amount=1):
     elif mode == "buy" and id != 0:
         print(f"{message.author.name} bought someting.")
         await message.channel.send("Closed.")
+
+@client.command(name='coin', aliases=[''])
+async def coin(message):
+    result = firebase.get(os.getenv("DB"), '')     
+    if str(message.author.id) in result:
+        coin = result[str(message.author.id)]["inv"]["coin"]
+        embed = discord.Embed(description = f"<@{message.author.id}> 💰You have {coin}$.")
+        await message.channel.send(embed=embed)
 
 client.run(os.getenv("TOKEN"))
