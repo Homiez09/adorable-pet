@@ -1,1 +1,0 @@
-typepet = ["cat", "dog"]
