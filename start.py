@@ -227,12 +227,17 @@ async def shop(message, mode="none", id=0, amount=1):
         embed.set_thumbnail(url="https://raw.githubusercontent.com/Jannnn1235/LalisaMusicBot/master/assets/logo.gif")
         embed.add_field(
             name="═════════ cat ══════════",
-            value="```1. cat egg (C)        200$\n2. cat egg (S)      1,000$```",
+            value="```1. cat egg (C)       2,000$\n2. cat egg (S)     10,000$```",
             inline=False
         )
         embed.add_field(
             name="═════════ dog ══════════",
-            value="```1. dog egg (C)      1,000$\n2. dog egg (S)      5,000$```",
+            value="```1. dog egg (C)      10,000$\n2. dog egg (S)     50,000$```",
+            inline=False
+        )
+        embed.add_field(
+            name="═════════items══════════",
+            value="```1. rename scroll    1,500$```",
             inline=False
         )
         embed.add_field(
